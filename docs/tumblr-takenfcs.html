@@ -1,0 +1,77 @@
+<div id="kh-fc-native" class="kh-fc-native">
+  <div class="kh-fc-hero"><div class="kh-fc-wrap"><div class="kh-fc-kicker">COMMUNITY / FACECLAIM DIRECTORY</div><h1>taken faceclaims.</h1><p>Browse the faces currently in use across Kismet Harbor, including retired characters.</p></div></div>
+  <div class="kh-fc-wrap kh-fc-content"><div class="kh-fc-toolbar"><label for="kh-fc-search" class="kh-fc-sr">Search faceclaims or characters</label><input id="kh-fc-search" type="search" placeholder="Search a faceclaim or character…" autocomplete="off"><span id="kh-fc-count" aria-live="polite">Loading…</span></div>
+    <div id="kh-fc-status" role="status">Loading the faceclaim directory…</div><nav id="kh-fc-nav" class="kh-fc-nav" aria-label="Faceclaim alphabet"></nav><div id="kh-fc-results"></div>
+  </div>
+</div>
+<style>
+#kh-fc-native{--rust:#b8572a;--rose:#c28c80;--cream:#f5e6d3;--maroon:#8b3a3a;--italic:#ef9e75;--link:#c28c80;--paper:#fcf8f3;--ink:#392b29;--line:#e5d4c7;font:15px/1.55 Karla,Arial,sans-serif;color:var(--ink);background:var(--paper);min-height:400px}
+#kh-fc-native *{box-sizing:border-box}#kh-fc-native .kh-fc-wrap{max-width:1240px;padding-left:22px;padding-right:22px;margin:0 auto}
+#kh-fc-native .kh-fc-hero{background:var(--rose);border-bottom:1px solid var(--line);padding:32px 0 39px}
+#kh-fc-native .kh-fc-kicker{font-size:11px;color:var(--maroon);font-weight:700;letter-spacing:.19em;margin-bottom:10px}
+#kh-fc-native h1{font:400 clamp(38px,5vw,66px)/1.1 'DM Serif Display',Georgia,serif;letter-spacing:-.018em;margin:0 0 12px;text-transform:lowercase;color:var(--ink)}
+#kh-fc-native .kh-fc-hero p{margin:0;font-size:15px;max-width:690px}
+#kh-fc-native .kh-fc-content{padding-top:26px;padding-bottom:60px}
+#kh-fc-native .kh-fc-toolbar{background:var(--cream);border:1px solid var(--line);border-radius:7px;padding:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+#kh-fc-native input{font:inherit;border:1px solid var(--line);padding:11px 13px;background:#fffdfb;color:var(--ink);min-width:0;flex:1 1 220px;border-radius:5px}
+#kh-fc-native #kh-fc-count{font-size:13px;color:var(--maroon)}
+#kh-fc-native #kh-fc-status{font-size:14px;color:var(--maroon);margin:18px 0}
+#kh-fc-native .kh-fc-nav{display:flex;flex-wrap:wrap;gap:6px;margin:18px 0 28px}
+#kh-fc-native .kh-fc-nav a{border:1px solid var(--rose);border-radius:6px;background:var(--cream);padding:7px 10px;min-width:35px;text-align:center;font-size:13px;font-weight:700;color:var(--maroon);text-decoration:none}
+#kh-fc-native .kh-fc-nav a:hover,#kh-fc-native .kh-fc-nav a:focus{background:var(--maroon);color:#fff}
+#kh-fc-native .kh-fc-intro{margin:0 0 16px;font-size:14px}
+#kh-fc-native .kh-fc-section{scroll-margin-top:22px;margin:24px 0 36px}
+#kh-fc-native .kh-fc-section h2{font:400 40px/1.15 'DM Serif Display',Georgia,serif;color:var(--maroon);padding-bottom:9px;margin:0 0 13px;border-bottom:1px solid var(--rust)}
+#kh-fc-native .kh-fc-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 17px}
+#kh-fc-native .kh-fc-entry{background:var(--paper);border:1px solid var(--rose);border-left:3px solid var(--rust);border-radius:8px;padding:10px 15px;min-width:0}
+#kh-fc-native .kh-fc-face{font:400 23px/1.25 'DM Serif Display',Georgia,serif;color:var(--maroon);overflow-wrap:anywhere}
+#kh-fc-native .kh-fc-character{font-size:13px;margin-top:4px;overflow-wrap:anywhere}
+#kh-fc-native .kh-fc-using{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--rust);font-weight:700;margin-right:5px}
+#kh-fc-native .kh-fc-character a{color:var(--rust);font-weight:700;text-decoration:underline}
+#kh-fc-native .kh-fc-retired{font-size:10px;border:1px solid var(--line);border-radius:5px;background:var(--cream);padding:1px 6px;color:var(--maroon);margin-left:5px}
+#kh-fc-native .kh-fc-sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:700px){#kh-fc-native .kh-fc-list{grid-template-columns:1fr}#kh-fc-native .kh-fc-wrap{padding-left:16px;padding-right:16px}#kh-fc-native .kh-fc-hero{padding:30px 0 40px}}
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&amp;family=Karla:wght@400;500;600;700&amp;display=swap">
+<script>
+(function(){
+  'use strict';
+  const ROOT=document.getElementById('kh-fc-native');
+  if(!ROOT)return;
+  // EDIT THESE TWO VALUES BEFORE PASTING INTO TUMBLR.
+  const DATA_URL='https://YOUR-GITHUB-USERNAME.github.io/YOUR-REPOSITORY/takenfcs.json';
+  const PROFILE_WEB_APP_URL='https://script.google.com/macros/s/AKfycbxZ-_onz4zySIXs-un09NDb8yx7looDEIrdvUsxeG9KfJD9cw-rTA_mmWLYjEuYy42laQ/exec';
+  const $=id=>ROOT.querySelector('#'+id);
+  const escapeHtml=value=>String(value==null?'':value).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  let people=[];
+  const alphabet=name=>{const ch=String(name||'').trim().charAt(0).toUpperCase();return /^[A-Z]$/.test(ch)?ch:'#';};
+  const sortPeople=(a,b)=>a.faceclaim.localeCompare(b.faceclaim,undefined,{sensitivity:'base'})||a.name.localeCompare(b.name,undefined,{sensitivity:'base'});
+  function applyTheme(theme){const vars=['rust','rose','cream','maroon','italic','link','paper','ink','line'];vars.forEach(k=>{const c=String(theme&&theme[k]||'');if(/^#[0-9a-f]{6}$/i.test(c))ROOT.style.setProperty('--'+k,c);});}
+  function render(){const q=$('kh-fc-search').value.trim().toLocaleLowerCase();const found=people.filter(p=>(p.faceclaim+' '+p.name).toLocaleLowerCase().includes(q));
+    $('kh-fc-count').textContent=found.length+' faceclaim '+(found.length===1?'entry':'entries');
+    if(!found.length){$('kh-fc-nav').innerHTML='';$('kh-fc-results').innerHTML='<p>No taken faceclaims match your search.</p>';return;}
+    const group={};found.forEach(p=>{const l=alphabet(p.faceclaim);(group[l]||(group[l]=[])).push(p);});
+    const letters=Object.keys(group).sort((a,b)=>a.localeCompare(b));
+    $('kh-fc-nav').innerHTML=letters.map(l=>'<a href="#kh-native-fc-'+(l==='#'?'other':l)+'">'+escapeHtml(l)+'</a>').join('');
+    $('kh-fc-results').innerHTML='<p class="kh-fc-intro">All published active and retired character faceclaims are taken. Characters sharing a faceclaim are shown individually.</p>'+letters.map(l=>{
+      const id='kh-native-fc-'+(l==='#'?'other':l);
+      const cards=group[l].map(p=>{const retired=/^(retired|deceased)$/i.test(p.status);const link=PROFILE_WEB_APP_URL+'?page='+(retired?'retired':'characters')+'&character='+encodeURIComponent(p.id);return '<article class="kh-fc-entry"><div class="kh-fc-face">'+escapeHtml(p.faceclaim)+'</div><div class="kh-fc-character"><span class="kh-fc-using">portrays</span> <a href="'+escapeHtml(link)+'">'+escapeHtml(p.name)+'</a>'+(retired?' <span class="kh-fc-retired">'+escapeHtml(p.status)+'</span>':'')+'</div></article>';}).join('');
+      return '<section class="kh-fc-section" id="'+id+'"><h2>'+escapeHtml(l)+'</h2><div class="kh-fc-list">'+cards+'</div></section>';}).join('');
+    // These anchors scroll within Tumblr itself, with no iframe or message bridge.
+  }
+  $('kh-fc-search').addEventListener('input',render);
+  function receiveFaceclaims(data){
+    if(!data||!Array.isArray(data.characters)){ $('kh-fc-status').textContent='The directory returned an unexpected response.';return; }
+    applyTheme(data.theme);people=data.characters.filter(p=>p&&typeof p.faceclaim==='string'&&typeof p.name==='string').sort(sortPeople);
+    $('kh-fc-status').textContent='';render();
+  };
+  // Static JSON served by GitHub Pages. No Apps Script request on a visitor's page load.
+  fetch(DATA_URL,{cache:'default'})
+    .then(function(res){if(!res.ok)throw new Error('HTTP '+res.status);return res.json();})
+    .then(receiveFaceclaims)
+    .catch(function(err){
+      $('kh-fc-status').textContent='Could not load the faceclaim directory ('+String(err.message||err)+'). Confirm the GitHub Pages JSON address is public and correctly configured.';
+      $('kh-fc-count').textContent='Unavailable';
+    });
+})();
+</script>
