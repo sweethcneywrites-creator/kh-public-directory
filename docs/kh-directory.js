@@ -128,7 +128,26 @@ function staffList(staff){return '<ul class="people-list">'+staff.map(x=>'<li>'+
 function activityMembers(members){const sorted=members.slice().sort((a,b)=>String(a.person).localeCompare(String(b.person)));return '<ul class="kh-ref-people kh-activity-members">'+sorted.map(m=>'<li><span class="kh-ref-person">'+h(m.person)+personBadge(m.person)+'</span><span class="kh-ref-role">'+h(m.Role||'Member')+'</span></li>').join('')+'</ul>';}
 function khSortByName(rows,key){return rows.slice().sort((a,b)=>String(a[key]||'').localeCompare(String(b[key]||''),undefined,{sensitivity:'base',numeric:true})||String(a['Character ID']||'').localeCompare(String(b['Character ID']||'')));}
 function khPublicCharacter(c){return !/^unpublished$/i.test(String(c.Published||'').trim());}
-function khTakenFaceclaims(){return khSortByName((D.characters||[]).filter(c=>khPublicCharacter(c)&&/^(active|retired|deceased)$/i.test(String(c.Status||'').trim())&&String(c.Faceclaim||'').trim()),'Faceclaim');}
+// Both feed formats are supported: the standalone v1 Taken FC feed uses
+// lowercase keys; the directory v2 feed uses spreadsheet-style keys.
+// A faceclaim being 'taken' is not the character's Status; Status remains
+// Active, Retired or Deceased in the approved public feed.
+function khTakenFaceclaims(){
+ const source=Array.isArray(D && D.characters)?D.characters:[];
+ const normalized=source.map(c=>({
+   ...c,
+   'Faceclaim':String(c.Faceclaim||c.faceclaim||'').trim(),
+   'Name':String(c.Name||c.name||'').trim(),
+   'Character ID':String(c['Character ID']||c.id||'').trim(),
+   'Status':String(c.Status||c.status||'').trim(),
+   'Published':String(c.Published||'Published').trim()
+ }));
+ return khSortByName(normalized.filter(c=>
+   khPublicCharacter(c) &&
+   /^(active|retired|deceased)$/i.test(c.Status) &&
+   c.Faceclaim !== ''
+ ),'Faceclaim');
+}
 function items(){switch(page){case 'characters':return khSortByName(D.characters.filter(c=>khPublicCharacter(c)&&/^active$/i.test(c.Status)),'Name');case 'retired':return khSortByName(D.characters.filter(c=>khPublicCharacter(c)&&/^(retired|deceased)$/i.test(c.Status)),'Name');case 'takenfcs':return khTakenFaceclaims();case 'npcs':return D.npcs;case 'locations':return D.locations;case 'activities':return D.activities;case 'alumni':return D.alumni;case 'relationships':return D.relationships;case 'living':return D.living;case 'wanted':return D.wanted;case 'anniversaries':return (D.anniversaries||[]).concat(D.birthdays||[]);default:return [];}}
 function facetOf(r){switch(page){case 'takenfcs':return '';case 'characters':case 'retired':case 'npcs':return r.Status;case 'locations':case 'living':return r.Neighborhood;case 'activities':case 'wanted':return r.Category;case 'alumni':return r.School;case 'relationships':return r.Section;default:return '';}}
 function sectionBlock(title,inside){return '<section class="section-group"><h3 class="group-title">'+h(title)+'</h3>'+inside+'</section>';}
@@ -299,19 +318,13 @@ function filterSetup(){if(!D)return;const values=[...new Set(items().map(facetOf
 khRoot.classList.add('embedded');
 $('search').oninput=render;$('filter').onchange=render;
 nav();updateHero();
-fetch(khDataBase+khPage+'.json',{cache:'default'})
+fetch(khDataBase+khPage+'.json',{cache:khPage==='takenfcs'?'no-store':'default'})
  .then(res=>{if(!res.ok)throw new Error('HTTP '+res.status);return res.json();})
  .then(data=>{
-   // Taken Faceclaims uses the established v1 feed (lowercase field names).
-   // Convert only its public fields to the format the directory renderer expects.
-   if(khPage==='takenfcs' && data.version===1 && Array.isArray(data.characters)){
-     data.characters=data.characters.map(c=>({
-       'Faceclaim':c.faceclaim||'',
-       'Name':c.name||'',
-       'Character ID':c.id||'',
-       'Status':c.status||'',
-       'Published':'Published'
-     }));
+   // Validate the public faceclaim feed, regardless of whether its approved
+   // records use lowercase v1 keys or spreadsheet-style v2 keys.
+   if(khPage==='takenfcs' && (!data || !Array.isArray(data.characters))){
+     throw new Error('Taken Faceclaims feed did not contain a characters array');
    }
    D=Object.assign({characters:[],npcs:[],locations:[],activities:[],members:[],alumni:[],relationships:[],living:[],wanted:[],anniversaries:[],birthdays:[],statusByName:{}},data);
    khApplyTheme(D.theme);filterSetup();render();
