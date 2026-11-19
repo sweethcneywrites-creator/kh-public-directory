@@ -48,6 +48,30 @@ if(khPage==='characters'||khPage==='retired'){
 `;
 }
 khShadow.append(khStyle);
+khStyle.textContent+=String.raw`
+:host .kh-ooc-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+:host .kh-ooc-card{padding:18px;background:#fffaf6;border:1px solid var(--rose);border-top:4px solid var(--rust);border-radius:12px;min-width:0}
+:host .kh-ooc-card h3{font:400 29px 'DM Serif Display',Georgia,serif;color:var(--maroon);margin:0}
+:host .kh-ooc-role{font-size:11px;font-weight:700;color:var(--rust)}
+:host .kh-ooc-meta{font-size:13px;color:var(--ink);margin:8px 0 12px}
+:host .kh-ooc-card details{border-top:1px solid var(--line);padding-top:10px}
+:host .kh-ooc-card summary{cursor:pointer;font-weight:700;color:var(--maroon)}
+:host .kh-ooc-card ul{padding:0;list-style:none}
+:host .kh-ooc-card li{display:flex;justify-content:space-between;gap:9px;border-bottom:1px solid var(--line);padding:8px 0;font-size:13px}
+:host .kh-ooc-card li span:last-child{color:var(--rust);text-align:right}
+:host .kh-calendar-jump{display:flex;flex-wrap:wrap;gap:8px;margin:15px 0 24px}
+:host .kh-calendar-jump a{font-size:12px;font-weight:700;color:var(--maroon);background:var(--cream);border:1px solid var(--line);padding:8px 12px;text-decoration:none;border-radius:5px}
+:host .kh-calendar-day{margin:23px 0 40px;scroll-margin-top:20px}
+:host .kh-calendar-day h3{font:400 34px 'DM Serif Display',Georgia,serif;color:var(--maroon);border-bottom:1px solid var(--rust);padding-bottom:9px}
+:host .kh-calendar-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+:host .kh-calendar-card{border:1px solid var(--rose);border-top:3px solid var(--rust);border-radius:9px;padding:16px;background:#fffaf6}
+:host .kh-calendar-card h4{font:400 23px 'DM Serif Display',Georgia,serif;color:var(--maroon);margin:0 0 8px}
+:host .kh-calendar-time{font-weight:800;color:var(--rust)}
+:host .kh-calendar-meta{font-size:13px;line-height:1.5;margin:5px 0}
+:host .kh-calendar-flex{background:var(--cream);padding:14px;border-radius:12px}
+@media(max-width:960px){:host .kh-ooc-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:680px){:host .kh-ooc-grid,:host .kh-calendar-grid{grid-template-columns:1fr}}
+`;
 const khBody=document.createElement('div');khBody.innerHTML=BODY_HTML;khShadow.append(khBody);
 
 khRoot.classList.add('coastal-directory');
@@ -55,8 +79,10 @@ const initialPage=khPage;
 const initialCharacter=new URL(location.href).searchParams.get('character')||'';
 const siteUrl='';
 const liveEmbed=false;
-const labels={characters:'Characters',retired:'Retired Archive',takenfcs:'Taken Faceclaims',npcs:'NPCs',locations:'Locations',activities:'Activities',alumni:'Yearbook',relationships:'Relationships',living:'Living Situations',wanted:'Wanted Connections',anniversaries:'Birthdays & Anniversaries'};
+const labels={ooc:'OOC Directory',calendar:'Community Calendar',characters:'Characters',retired:'Retired Archive',takenfcs:'Taken Faceclaims',npcs:'NPCs',locations:'Locations',activities:'Activities',alumni:'Yearbook',relationships:'Relationships',living:'Living Situations',wanted:'Wanted Connections',anniversaries:'Birthdays & Anniversaries'};
 const heroText={
+  ooc:['COMMUNITY / BEHIND THE CHARACTERS','meet the writers.','get to know the people bringing kismet harbor to life.'],
+  calendar:['COMMUNITY / WEEKLY SCHEDULE','the community calendar.','Recurring meetings, clubs, and gatherings around Kismet Harbor.'],
  characters:['COMMUNITY / THE RESIDENTS','Meet the residents.','Get to know the people who call Kismet Harbor home.'],
  retired:['COMMUNITY / FORMER RESIDENTS','The retired archive.','The stories and people who have shaped Kismet Harbor.'],
   takenfcs:['COMMUNITY / FACECLAIM DIRECTORY','Taken faceclaims.','Browse the faces currently in use across Kismet Harbor, including retired characters.'],
@@ -89,10 +115,10 @@ function renderActivityDirectory(rows){
  }).join('')+'</div></section>').join('');
 }
 const $=id=>khShadow.getElementById(id),h=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const pageAliases={yearbook:'alumni',birthdays:'anniversaries',calendar:'anniversaries'};let D=null,page=labels[pageAliases[initialPage]||initialPage]?(pageAliases[initialPage]||initialPage):'characters',chosenCharacter=initialCharacter,activeSub='',activeMonth=0;
+const pageAliases={yearbook:'alumni',birthdays:'anniversaries'};let D=null,page=labels[pageAliases[initialPage]||initialPage]?(pageAliases[initialPage]||initialPage):'characters',chosenCharacter=initialCharacter,activeSub='',activeMonth=0;
 function badge(v){const s=String(v||'').trim();if(!s||/^(active|living|occupied|published)$/i.test(s))return '';const cls=/deceased/i.test(s)?'dead':/npc/i.test(s)?'npc':/open|available/i.test(s)?'open':'';return '<span class="badge '+cls+'">'+h(s)+'</span>';}
 function link(url,label){return /^https?:\/\//i.test(String(url||''))?'<a href="'+h(url)+'" rel="noopener noreferrer" target="_blank">'+h(label)+'</a>':'';}
-function direct(p,id){const routes={characters:'/characters',retired:'/retired',takenfcs:'/takenfcs',npcs:'/npcs',locations:'/locations',activities:'/activities',alumni:'/yearbook',relationships:'/relationships',living:'/living-situations',wanted:'/wanted-connections',anniversaries:'/birthdays'};const origin='https://kismetharbor.tumblr.com';return origin+(routes[p]||'/characters')+(id?'?character='+encodeURIComponent(id):'');}
+function direct(p,id){const routes={ooc:'/ooc',calendar:'/calendar',characters:'/characters',retired:'/retired',takenfcs:'/takenfcs',npcs:'/npcs',locations:'/locations',activities:'/activities',alumni:'/yearbook',relationships:'/relationships',living:'/living-situations',wanted:'/wanted-connections',anniversaries:'/anniversaries'};const origin='https://kismetharbor.tumblr.com';return origin+(routes[p]||'/characters')+(id?'?character='+encodeURIComponent(id):'');}
 function card(title,content,photo){return '<article class="card">'+(photo||'')+'<div class="card-head">'+title+'</div><div class="card-body">'+content+'</div></article>';}
 function line(t,v){return v?'<p><strong>'+h(t)+':</strong> '+h(v)+'</p>':'';}
 function normalize(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();}
@@ -148,8 +174,8 @@ function khTakenFaceclaims(){
    c.Faceclaim !== ''
  ),'Faceclaim');
 }
-function items(){switch(page){case 'characters':return khSortByName(D.characters.filter(c=>khPublicCharacter(c)&&/^active$/i.test(c.Status)),'Name');case 'retired':return khSortByName(D.characters.filter(c=>khPublicCharacter(c)&&/^(retired|deceased)$/i.test(c.Status)),'Name');case 'takenfcs':return khTakenFaceclaims();case 'npcs':return D.npcs;case 'locations':return D.locations;case 'activities':return D.activities;case 'alumni':return D.alumni;case 'relationships':return D.relationships;case 'living':return D.living;case 'wanted':return D.wanted;case 'anniversaries':return (D.anniversaries||[]).concat(D.birthdays||[]);default:return [];}}
-function facetOf(r){switch(page){case 'takenfcs':return '';case 'characters':case 'retired':case 'npcs':return r.Status;case 'locations':case 'living':return r.Neighborhood;case 'activities':case 'wanted':return r.Category;case 'alumni':return r.School;case 'relationships':return r.Section;default:return '';}}
+function items(){switch(page){case 'ooc':return D.writers||[];case 'calendar':return D.sessions||[];case 'characters':return khSortByName(D.characters.filter(c=>khPublicCharacter(c)&&/^active$/i.test(c.Status)),'Name');case 'retired':return khSortByName(D.characters.filter(c=>khPublicCharacter(c)&&/^(retired|deceased)$/i.test(c.Status)),'Name');case 'takenfcs':return khTakenFaceclaims();case 'npcs':return D.npcs;case 'locations':return D.locations;case 'activities':return D.activities;case 'alumni':return D.alumni;case 'relationships':return D.relationships;case 'living':return D.living;case 'wanted':return D.wanted;case 'anniversaries':return (D.anniversaries||[]).concat(D.birthdays||[]);default:return [];}}
+function facetOf(r){switch(page){case 'ooc':return r.role||'';case 'calendar':return ''; case 'takenfcs':return '';case 'characters':case 'retired':case 'npcs':return r.Status;case 'locations':case 'living':return r.Neighborhood;case 'activities':case 'wanted':return r.Category;case 'alumni':return r.School;case 'relationships':return r.Section;default:return '';}}
 function sectionBlock(title,inside){return '<section class="section-group"><h3 class="group-title">'+h(title)+'</h3>'+inside+'</section>';}
 function groupBy(rows,field){const out={};rows.forEach(r=>{const key=String(r[field]||'Other').trim()||'Other';(out[key]||(out[key]=[])).push(r);});return out;}
 function khFaceclaimLetter(name){const first=String(name||'').trim().charAt(0).toUpperCase();return /^[A-Z]$/.test(first)?first:'#';}
@@ -279,17 +305,86 @@ function renderCalendar(){
  const tabs='<div class="tabs" aria-label="Jump to month">'+months.map((m,i)=>'<button type="button" class="tab" data-month="'+(i+1)+'" aria-label="Go to '+m+'">'+m+'</button>').join('')+'</div>';
  return tabs+groups.map((group,i)=>{group.sort((a,b)=>a.day-b.day||a.name.localeCompare(b.name));return '<section id="month-'+(i+1)+'" class="month-box"><div class="month-head"><div class="eyebrow">MONTH '+String(i+1).padStart(2,'0')+'</div><h3>'+months[i]+'</h3></div><div class="month-items">'+(group.length?group.map(x=>'<div class="date-entry"><div class="date-number">'+String(x.day).padStart(2,'0')+'</div><div class="event-line"><strong>'+h(x.name)+'</strong><span class="small-tag">'+h(x.kind)+'</span>'+(x.kind==='Birthday'?badge(x.status):'')+(x.kind==='Anniversary'&&x.y?'<span class="muted">Since '+h(x.y)+'</span>':'')+'</div></div>').join(''):'<p class="muted">No published entries for this month.</p>')+'</div></section>';}).join('');
 }
+/** GitHub-native OOC and weekly activities calendar (separate from birthdays). */
+function khRenderOoc(rows){
+ const group=(role,title)=>{
+   const writers=rows.filter(w=>w.role===role);
+   return writers.length?'<section class="section-group"><h2 class="group-title">'+h(title)+' ('+writers.length+')</h2><div class="kh-ooc-grid">'+writers.map(w=>{
+     const details=[w.age?'age '+w.age:'',w.pronouns||'',w.timezone||''].filter(Boolean).join(' · ');
+     return '<article class="kh-ooc-card"><span class="kh-ooc-role">'+h(w.role)+'</span><h3>'+h(w.alias)+'</h3><div class="kh-ooc-meta">'+h(details)+'</div><details open><summary>characters ('+Number(w.count||0)+')</summary><ul>'+(w.characters||[]).map(c=>'<li><span>'+h(c.name)+'</span><span>'+h(c.faceclaim||'faceclaim not listed')+'</span></li>').join('')+'</ul></details></article>';
+   }).join('')+'</div></section>':'';
+ };
+ return group('admin','admins')+group('member','members');
+}
+const khDays=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+function khSessionTime(s){
+ const text=String(s||'');
+ const range=text.match(/\b\d{1,2}\s*(?:[:.]\d\d)?\s*[–-]\s*\d{1,2}(?::\d\d)?\s*(?:AM|PM)\b/i);
+ if(range)return range[0].replace(/\s+/g,' ').toUpperCase();
+ const single=text.match(/\b\d{1,2}(?::\d\d)?\s*(?:AM|PM)\b/i);
+ if(single)return single[0].replace(/\s+/g,' ').toUpperCase();
+ if(/\bdawn\b/i.test(text))return 'Dawn';
+ if(/after sunset/i.test(text))return 'After sunset';
+ if(/\bnoon\b/i.test(text))return '12 PM';
+ if(/early morning/i.test(text))return 'Early morning';
+ return '';
+}
+function khSessionInterpret(pattern,name){
+ const text=String(pattern||'').trim(),low=text.toLowerCase();
+ if(/equine emporium/i.test(name)||/saturday or sunday/i.test(low))return [{day:'arrangement',time:'TBD',frequency:'Twice monthly · Saturday or Sunday',special:'Members arrange the weekend day and time'}];
+ if(/first day of the month|first of the month|^on the first of the month/.test(low))return [{day:'arrangement',time:khSessionTime(text)||'TBD',frequency:'First day of each month',special:'Date varies by weekday'}];
+ if(/^aa\s*&\s*na$/i.test(name)&&/aa\s*\d/i.test(low)&&/na\s*\d/i.test(low)){
+   const aa=text.match(/AA\s*(\d{1,2}(?::\d\d)?\s*(?:AM|PM))/i),na=text.match(/NA\s*(\d{1,2}(?::\d\d)?\s*(?:AM|PM))/i);
+   if(aa&&na)return [{day:'Wednesday',time:aa[1].toUpperCase(),frequency:'Every week',suffix:' — AA'},{day:'Wednesday',time:na[1].toUpperCase(),frequency:'Every week',suffix:' — NA'}];
+ }
+ let parts=text.split(/\s*;\s*/);
+ if(/\b(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)s?\b[^/]*\/[^/]*\b(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)s?\b/i.test(text))parts=text.split(/\s*\/\s*/);
+ const output=[];
+ parts.forEach(part=>{
+   const pl=part.toLowerCase(),days=khDays.filter(day=>new RegExp('\\b'+day.toLowerCase()+'s?\\b').test(pl));
+   if(!days.length)return;
+   days.forEach(day=>{
+     let frequency='Every week';
+     const ordinal=pl.match(/\b(first|second|third|fourth|last)\s+(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)/);
+     if(ordinal)frequency=ordinal[1][0].toUpperCase()+ordinal[1].slice(1)+' '+day+' monthly';
+     else if(/biweekly|every other/.test(pl))frequency='Every other week';
+     else if(/once per month|monthly/.test(pl))frequency='Once monthly';
+     output.push({day,time:khSessionTime(part)||'TBD',frequency});
+   });
+ });
+ return output.length?output:[{day:'arrangement',time:khSessionTime(text)||'TBD',frequency:text||'Schedule arranged by members'}];
+}
+function khRenderWeeklyCalendar(){
+ const byId=new Map((D.activities||[]).map(a=>[String(a['Activity ID']||'').trim().toUpperCase(),a]));
+ const entries=[];
+ (D.sessions||[]).forEach(s=>{
+   const activity=byId.get(String(s['Activity ID']||'').trim().toUpperCase())||{};
+   const name=activity['Activity Name']||s['Activity Name'];if(!name)return;
+   const pattern=s['Meeting pattern (source text)']||'';
+   khSessionInterpret(pattern,name).forEach(x=>entries.push({...x,name:name+(x.suffix||''),location:s.Location||activity.Location||'Location to be confirmed',season:s.Season||activity.Season||'',pattern}));
+ });
+ const timeRank=t=>{const m=String(t).match(/(\d{1,2})(?::(\d\d))?\s*(AM|PM)/i);return m?(Number(m[1])%12+(m[3].toUpperCase()==='PM'?12:0))*60+Number(m[2]||0):9999;};
+ const card=e=>'<article class="kh-calendar-card"><div class="kh-calendar-time">'+h(e.time)+'</div><h4>'+h(e.name)+'</h4><p class="kh-calendar-meta">'+h(e.frequency)+'</p><p class="kh-calendar-meta">'+h(e.location)+'</p>'+(e.season&&!/^not specified$/i.test(e.season)?'<p class="kh-calendar-meta"><em>'+h(e.season)+'</em></p>':'')+(e.special?'<p class="kh-calendar-meta">'+h(e.special)+'</p>':'')+(e.day==='arrangement'?'<p class="kh-calendar-meta">'+h(e.pattern)+'</p>':'')+'</article>';
+ const jump='<nav class="kh-calendar-jump" aria-label="Jump to weekday">'+khDays.map(day=>'<a href="#kh-day-'+day.toLowerCase()+'">'+day+'</a>').join('')+'<a href="#kh-by-arrangement">By Arrangement</a></nav>';
+ const groups=khDays.map(day=>{
+   const rows=entries.filter(e=>e.day===day).sort((a,b)=>timeRank(a.time)-timeRank(b.time)||a.name.localeCompare(b.name));
+   return '<section class="kh-calendar-day" id="kh-day-'+day.toLowerCase()+'"><h3>'+day+'</h3>'+(rows.length?'<div class="kh-calendar-grid">'+rows.map(card).join('')+'</div>':'<p>No fixed meetings currently listed.</p>')+'</section>';
+ }).join('');
+ const flexible=entries.filter(e=>e.day==='arrangement');
+ return '<p>Browse recurring community activities by weekday, or see flexible schedules under By Arrangement.</p>'+jump+groups+'<section class="kh-calendar-day kh-calendar-flex" id="kh-by-arrangement"><h3>By Arrangement</h3>'+(flexible.length?'<div class="kh-calendar-grid">'+flexible.map(card).join('')+'</div>':'<p>No flexible activities currently listed.</p>')+'</section>';
+}
+
 function render(){updateHero();if(!D)return;const rows=items(),q=$('search').value.trim().toLowerCase(),f=$('filter').value;const profile=(page==='characters'||page==='retired')&&chosenCharacter?rows.find(r=>String(r['Character ID'])===String(chosenCharacter)):null;const selected=profile?[profile]:rows.filter(r=>(!f||String(facetOf(r))===f)&&(!q||JSON.stringify(r).toLowerCase().includes(q)));
-$('search').style.display=profile?'none':'';$('filter').style.display=profile?'none':'';$('heading').textContent=profile?profile.Name:labels[page];$('count').textContent=profile?'':selected.length+' records';let output='';
+$('search').style.display=profile||page==='calendar'?'none':'';$('filter').style.display=profile||page==='calendar'?'none':'';$('heading').textContent=profile?profile.Name:labels[page];$('count').textContent=profile?'':selected.length+(page==='ooc'?' writers':page==='calendar'?' session rows':' records');let output='';
 if(page==='characters'||page==='retired'){output=(profile?'<a class="back" href="'+h(direct(page))+'">← Back to '+h(labels[page])+'</a>':'')+'<div class="kh-reference-grid'+(profile?' kh-single-profile':'')+'">'+selected.map(personCard).join('')+'</div>';}if(chosenCharacter&&!profile&&['characters','retired'].includes(page))output='<div class="empty">Profile not available in this section. <a href="'+h(direct(page))+'">Return to directory</a></div>';
 if(page==='npcs')output='<div class="grid">'+selected.map(n=>card(h(n['Name / Group'])+' '+badge(/deceased/i.test(n.Status)?'Deceased':'NPC'),line('Category',n.Category)+'<p>'+h(n.Description)+'</p>')).join('')+'</div>';
 if(page==='locations')output='<div class="kh-reference-grid">'+selected.map(khLocationCard).join('')+'</div>';
 if(page==='takenfcs')output=renderTakenFaceclaims(selected);
 if(page==='activities')output=renderActivityDirectory(selected);
 if(page==='alumni')output=renderYearbook(selected);
-if(page==='relationships')output=renderRelationship(selected);if(page==='living')output=renderLiving(selected);if(page==='wanted')output=renderWanted(selected);if(page==='anniversaries')output=renderCalendar();
+if(page==='relationships')output=renderRelationship(selected);if(page==='living')output=renderLiving(selected);if(page==='wanted')output=renderWanted(selected);if(page==='anniversaries')output=renderCalendar();if(page==='ooc')output=khRenderOoc(selected);if(page==='calendar')output=khRenderWeeklyCalendar();
 $('results').className='';$('results').innerHTML=output||'<div class="empty">No published entries match your search.</div>';
-$('results').querySelectorAll('[data-sub]').forEach(el=>el.onclick=()=>{activeSub=el.dataset.sub;render();});$('results').querySelectorAll('[data-jump]').forEach(el=>el.onclick=e=>{e.preventDefault();khScrollToTarget(el.dataset.jump);});$('results').querySelectorAll('.kh-activity-toc a').forEach(el=>el.onclick=e=>{e.preventDefault();khScrollToTarget(el.getAttribute('href').slice(1));});$('results').querySelectorAll('[data-month]').forEach(el=>el.onclick=e=>{e.preventDefault();activeMonth=Number(el.dataset.month);khScrollToMonth(activeMonth);});}
+$('results').querySelectorAll('[data-sub]').forEach(el=>el.onclick=()=>{activeSub=el.dataset.sub;render();});$('results').querySelectorAll('[data-jump]').forEach(el=>el.onclick=e=>{e.preventDefault();khScrollToTarget(el.dataset.jump);});$('results').querySelectorAll('.kh-calendar-jump a').forEach(el=>el.onclick=e=>{e.preventDefault();khScrollToTarget(el.getAttribute('href').slice(1));});$('results').querySelectorAll('.kh-activity-toc a').forEach(el=>el.onclick=e=>{e.preventDefault();khScrollToTarget(el.getAttribute('href').slice(1));});$('results').querySelectorAll('[data-month]').forEach(el=>el.onclick=e=>{e.preventDefault();activeMonth=Number(el.dataset.month);khScrollToMonth(activeMonth);});}
 
 /** Scroll within the directory and notify Tumblr when embedded. */
 function khScrollToTarget(id){
@@ -321,14 +416,8 @@ nav();updateHero();
 fetch(khDataBase+khPage+'.json',{cache:khPage==='takenfcs'?'no-store':'default'})
  .then(res=>{if(!res.ok)throw new Error('HTTP '+res.status);return res.json();})
  .then(data=>{
-   // Validate the public faceclaim feed, regardless of whether its approved
-   // records use lowercase v1 keys or spreadsheet-style v2 keys.
-   if(khPage==='takenfcs' && (!data || !Array.isArray(data.characters))){
-     throw new Error('Taken Faceclaims feed did not contain a characters array');
-   }
-   D=Object.assign({characters:[],npcs:[],locations:[],activities:[],members:[],alumni:[],relationships:[],living:[],wanted:[],anniversaries:[],birthdays:[],statusByName:{}},data);
-   khApplyTheme(D.theme);filterSetup();render();
- })
+  if(khPage==='takenfcs' && (!data || !Array.isArray(data.characters)))throw new Error('Taken Faceclaims feed did not contain a characters array');
+  D=Object.assign({writers:[],sessions:[],characters:[],npcs:[],locations:[],activities:[],members:[],alumni:[],relationships:[],living:[],wanted:[],anniversaries:[],birthdays:[],statusByName:{}},data);khApplyTheme(D.theme);filterSetup();render();})
  .catch(e=>{$('results').innerHTML='<div class=\"empty\">Could not load: '+h(e.message||e)+'</div>';});
 
 })();
