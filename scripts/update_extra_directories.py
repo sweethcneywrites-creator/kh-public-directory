@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Publish public OOC profiles and activity sessions without copying admin-only columns."""s
+"""Publish public OOC profiles and activity sessions without copying admin-only columns."""
 import json
 import os
 from pathlib import Path
